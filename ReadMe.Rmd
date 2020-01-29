@@ -18,19 +18,23 @@ library(tidyverse)
 A tutorial for analysing and processing data using simple-to-use R tools
 
 # Table of contents
-- [Getting started](#Getting-started)
-  * [Installing R](#Installing-R)
-  * [Installing packages for this tutorial](#Installing-packages-for-this-tutorial)
-- [Importing data into R](#Importing-data-into-R)
-  * [Retrieving path to your data file](#Retrieving-path-to-your-data-file)
-  * [Importing delimited text files](#Importing-delimited-text-files
-  * [Importing excel files](#Importing-excel-files)
-- [Transforming dataframes](#Transforming-dataframes)
-  * [The pipe (%>%)](#The-pipe-(%>%))
-  * [Filter data](#Filter-data)
-  * [Transmute data](#Transmute-data)
-  * [Reformating columns](##Reformating-columns)
-  * [Spread/gather](#Spreadgather)
+* [Getting started](#Getting-started)
+    + [Installing R](#Installing-R)
+    + [Installing packages for this tutorial](#Installing-packages-for-this-tutorial)
+* [Importing data into R](#Importing-data-into-R)
+    + [Retrieving path to your data file](#Retrieving-path-to-your-data-file)
+    + [Importing delimited text files](#Importing-delimited-text-files)
+    + [Importing excel files](#Importing-excel-files)
+* [Accessing data in dataframes](#Accessing-data-in-dataframes)
+    + [Viewing contents of dataframe](#Viewing-contents-of-dataframe)
+    + [Checking column/row names and lengths](#Checking-columnrow-names-and-lengths)
+    + [Subsetting dataframe](#Subsetting-dataframe)
+* [Transforming dataframes](#Transforming-dataframes)
+    + [The pipe (%>%)](#The-pipe-(%>%))
+    + [Filter data](#Filter-data)
+    + [Transmute data](#Transmute-data)
+    + [Reformating columns](##Reformating-columns)
+    + [Spread/gather](#Spreadgather)
 
 ## Getting started
 ### Installing R
@@ -90,15 +94,15 @@ library(vroom)
 sample_file <- vroom(sample_file_path)
 ```
 
-We can quickly inspect the dataframe using built-in R functions:
+Our dataframe is assigned to a variable named **sample_file**. We can quickly inspect the dataframe using built-in `summary` function:
 ```{r inspectfile}
 # get overview of the variables in the dataframe
 summary(sample_file)
 ```
 
 As seen above, our sample *expression_1.txt* file contain 2 named columns; "transcript_id" which contain character names of transcripts and "TpM" containing expression values. By default, `vroom` will assign the first row of the input table as column names and the remaining rows as values. If your data do not contain column names, you may prevent `vroom` from misreading your data by setting the **col_names** argument to FALSE as such:
-```{r shownoheader,message=FALSE}
-vroom(sample_file_path, col_names = FALSE)
+```{r shownoheader,message=FALSE, eval=FALSE}
+sample_file <- vroom(sample_file_path, col_names = FALSE)
 ```
 
 For more information on how to use *vroom*, refer to [*vroom*](https://vroom.r-lib.org/articles/vroom.html)'s getting started page.
@@ -124,9 +128,99 @@ By default, `read_excel` will import the first sheet of your excel file. It is p
 ## Accessing data in dataframes
 Now that your data is in R, we can start to inspect the dataframe and extract information from it. We will be using the **sample_file** dataframe that was loaded [above](#Importing-excel-files).
 
-### View contents of dataframe
-### Check column/row names and lengths
+### Viewing contents of dataframe
+Your dataframe can be displayed by typing out the variable name that it was assigned to into R console:
+```{r print}
+sample_file
+```
+
+In Rstudio, you may display an interactive dataframe by using the `View()` function:
+```{r View, eval=FALSE}
+View(sample_file)
+```
+
+You may display the top few or bottom few rows of your dataframe:
+```{r headtail}
+# Display top 6 (default) rows
+head(sample_file)
+
+# Display top 6 (default) rows
+tail(sample_file)
+```
+
+### Checking column/row names and lengths
+Column variable names can be easily viewed using the `names()` function:
+```{r checknames}
+names(sample_file)
+```
+
+If the rows of your dataframe are named, you may view it using the `rownames()` function:
+```{r checkrownames}
+rownames(sample_file)
+```
+
+The dimensions of your dataframe can be inspected using several base functions:
+```{r checkdim}
+# get row vs column dimension
+dim(sample_file)
+
+# get number of rows
+nrow(sample_file)
+
+# get number of columns
+length(sample_file)
+```
+
 ### Subsetting dataframe
+Subsetting is the process of retrieving certain parts of a dataframe. The columns and rows of a dataframe can be subsetted by specifying the column/row number that you wish to view. This number is also termed as "index" and in R, the first row/column has an index value of 1. The index is to be printed within square brackets infront of the dataframe variable name (e.g. `sample_file[1]`).
+
+Let's see what happens when we print out the above example:
+```{r subset1}
+sample_file[1]
+```
+
+The above code selects and prints the entire first column of our sample dataframe. You may create new dataframes by assigning the subsetted dataframe to a new variable:
+```{r subset2}
+sample_subset1 <- sample_file[1]
+head(sample_subset1)
+```
+
+How then do we select certain rows from our dataframe? For this, we have to type out the desired row-index, followed by a comma:
+```{r subset3}
+sample_file[1,]
+```
+
+Technically, the above code means that you are subsetting the dataframe **sample_file** by [**row-index , column-index**]. If the row or column index is not stated, R will select the entire length of the row/column. Therefore, the code below yields the same output as `sample_file[1]`:
+```{r subset4}
+sample_file[,1]
+
+# 'identical' function checks if object A and B is identical
+identical(sample_file[1], sample_file[,1])
+```
+
+And specific values can be printed by providing both row,column indices:
+```{r subset4.1}
+sample_file[1,1]
+```
+
+Multiple rows can be returned by providing a range of indices. One way is to specify the start and end of the indices, separated by a ":" :
+```{r subset5}
+sample_file[1:6,]
+
+# this is identical to head()
+identical(head(sample_file), sample_file[1:6,])
+```
+
+Another way of printing out multiple rows is by providing a list of row indices. In R, a list is an object which contains elements of different types of values. It is constructed by typing out the values separated by a comma, within a `c()` function. For instance:
+```{r makelist}
+# make a list with 4 integers
+c(1,3,5,7)
+```
+
+This list can be written within the square brackets to subset our dataframe:
+```{r subset6}
+sample_file[c(1,3,5,7),]
+```
 
 
 ## Transforming dataframes
@@ -138,8 +232,20 @@ library(tidyverse)
 ```
 
 ### The pipe (%>%)
+The `%>%` operator is a highly utilized tool in R. It allows users to write unclutterd and logical nested codes. For instance, if we would like sequentially `head()` the first 6 rows of **sample_file**, and print out its row names, we have to:
+```{r nested}
+rownames(head(sample_file))
+```
 
-https://www.datacamp.com/community/tutorials/pipe-r-tutorial
+The above nested code has to be read from the inner-most function outwards. This may get complicated when you are trying to write multiple complex functions in one line. With `%>%`, the above code can be cleanly written as:
+```{r pipe}
+sample_file %>% head() %>% rownames()
+```
+
+Intuitively, you will read the code from left to right and immediately you will understand that our **sample_file** went through 2 functions. In essence, the `%>%` operator will assign the output of the function on its left to the first argument of the function on the right. Therefore, `sample_file %>% head()` will indicate that you are grabbing **sample_file** on the left-side of `%>%` to the first argument of the `head()` function on the right. In the next part of the code (`head() %>% rownames()`), the output of the `head()` function is set as the first argument of the `rownames()` function , this printing out the row names of the first 6 rows of our dataframe.
+
+I highly recommend adopting the `%>%` operator in all your R code and we will continuously utilize this operator in this tutorial. For details on `%>%`, check out this [tutorial](https://www.datacamp.com/community/tutorials/pipe-r-tutorial).
+
 
 ### Filter data
 ### Transmute data
