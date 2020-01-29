@@ -92,12 +92,6 @@ sample_file <- vroom(sample_file_path)
 
 We can quickly inspect the dataframe using built-in R functions:
 ```{r inspectfile}
-# view first 6 rows of dataframe
-head(sample_file)
-
-# get number of rows found in dataframe
-nrow(sample_file)
-
 # get overview of the variables in the dataframe
 summary(sample_file)
 ```
@@ -126,6 +120,13 @@ summary(sample_file)
 ```
 
 By default, `read_excel` will import the first sheet of your excel file. It is possible to import other sheets by providing additional arguments to this function. Check out *readxl*'s overview page [here](https://readxl.tidyverse.org/).
+
+## Accessing data in dataframes
+Now that your data is in R, we can start to inspect the dataframe and extract information from it. We will be using the **sample_file** dataframe that was loaded [above](#Importing-excel-files).
+
+### View contents of dataframe
+### Check column/row names and lengths
+### Subsetting dataframe
 
 
 ## Transforming dataframes
